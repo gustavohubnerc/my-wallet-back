@@ -42,9 +42,10 @@ app.post('/cadastro', async(req, res) => {
 
     try {
         const userExists = await db.collection('users').findOne({ email });
+
         if (userExists) return res.sendStatus(409);
 
-        const hash = await bcrypt.hash(password, 10);
+        const hash = bcrypt.hashSync(password, 10);
 
         const userData = { name, email, password: hash};
 
@@ -63,7 +64,7 @@ app.post('/', async(req, res) => {
 
     const loginSchema = Joi.object({
         email: Joi.string().email().required(),
-        password: Joi.string().required()
+        password: Joi.string().required().min(3)
     })
 
     const validation = loginSchema.validate(req.body, { abortEarly: false });
