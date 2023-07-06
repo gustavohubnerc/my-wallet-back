@@ -84,7 +84,7 @@ app.post('/', async(req, res) => {
             await db.collection('sessions').insertOne({ userId: user._id, token });
             res.status(200).send(token);
         } else {
-            res.sendStatus(404);
+            res.sendStatus(401);
         }
     } catch (error) {
         return res.sendStatus(500);
