@@ -88,8 +88,62 @@ app.post('/', async(req, res) => {
         }
     } catch (error) {
         return res.sendStatus(500);
-    }
+    } 
+})
+
+app.post('/nova-transacao/:tipo', async(req, res) => {
+    const { value, description } = req.body;
+    const { tipo } = req.params;
+    const { authorization } = req.headers;
     
+    const token = authorization?.replace("Bearer ", "");
+
+    if(!token) return res.sendStatus(401);
+
+    if(tipo !== 'entrada' && tipo !== 'saida') return res.sendStatus(404);
+
+    const transactionSchema = Joi.object({
+        value: Joi.number().positive().required(),
+        description: Joi.string().required(),
+    });
+
+    const validation = transactionSchema.validate({ value, description }, { abortEarly: false });
+
+    if(validation.error) {
+        const errors = validation.error.details.map(detail => detail.message);
+        return res.status(422).send(errors);
+    }
+
+    try {
+        const session = await db.collection('sessions').findOne({ token });
+
+        if(!session) return res.sendStatus(401);
+
+        await db.collection("transactions").insertOne({ value, description, tipo });
+
+        res.sendStatus(201);
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+})
+
+app.get('/home', (req, res) => {
+    const { authorization } = req.headers;
+    
+    const token = authorization?.replace("Bearer ", "");
+
+    if(!token) return res.sendStatus(401);
+
+    try {
+        const session = db.collection('sessions').findOne({ token });
+
+        if(!session) return res.sendStatus(401);
+
+        const allTransactions = db.collection('transactions').find().toArray();
+        res.send(allTransactions);
+    } catch (error) {
+        return res.sendStatus(500);
+    }
 })
 
 const PORT = 5000;
