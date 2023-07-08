@@ -82,7 +82,7 @@ app.post('/', async(req, res) => {
             const token = uuid();
 
             await db.collection('sessions').insertOne({ userId: user._id, token });
-            res.status(200).send(token);
+            res.status(200).send({name: user.name, token});
         } else {
             res.sendStatus(401);
         }
@@ -119,7 +119,9 @@ app.post('/nova-transacao/:tipo', async(req, res) => {
 
         if(!session) return res.sendStatus(401);
 
-        await db.collection("transactions").insertOne({ value, description, tipo });
+        await db.collection('transactions').insertOne({ value, description, tipo });
+
+        console.log()
 
         res.sendStatus(201);
     } catch (error) {
@@ -127,7 +129,7 @@ app.post('/nova-transacao/:tipo', async(req, res) => {
     }
 })
 
-app.get('/home', (req, res) => {
+app.get('/home', async(req, res) => {
     const { authorization } = req.headers;
     
     const token = authorization?.replace("Bearer ", "");
@@ -135,11 +137,7 @@ app.get('/home', (req, res) => {
     if(!token) return res.sendStatus(401);
 
     try {
-        const session = db.collection('sessions').findOne({ token });
-
-        if(!session) return res.sendStatus(401);
-
-        const allTransactions = db.collection('transactions').find().toArray();
+        const allTransactions = await db.collection('transactions').find().toArray();
         res.send(allTransactions);
     } catch (error) {
         return res.sendStatus(500);
