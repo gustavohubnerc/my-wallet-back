@@ -51,13 +51,14 @@ export async function deleteTransaction(req, res) {
     if(!token || !id) return res.sendStatus(401);
 
     try {
-        const findTransaction = await db.collection('transactions').findOne({ _id: ObjectId(id) });
+        const findTransaction = await db.collection('transactions').findOne({ _id: new ObjectId(id) });
         if (!findTransaction) return res.sendStatus(401);
 
-        await db.collection('transactions').deleteOne({ _id: ObjectId(id) });
+        await db.collection('transactions').deleteOne({ _id: new ObjectId(id) });
 
         res.sendStatus(204);
     } catch (error) {
-        return res.sendStatus(500);
+        console.log(error)
+        return res.send(error).status(500);
     }
 }    
