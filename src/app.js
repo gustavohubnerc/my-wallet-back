@@ -1,28 +1,17 @@
 import express from 'express';
-import Joi from 'joi';
-import dotenv from 'dotenv';
-import { MongoClient } from 'mongodb';
 import cors from 'cors';
-import bcrypt from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+import transactionsRouter from './routers/transactions.routes.js';
+import userRouter from './routers/user.routes.js';
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-dotenv.config();
 
-const mongoClient = new MongoClient(process.env.DATABASE_URL);
-let db;
+app.use(transactionsRouter);
+app.use(userRouter);
 
-try {
-    await mongoClient.connect();
-    console.log('MongoDB connected!');
-    db = mongoClient.db();
-} catch (error) {
-    console.log(error.message);
-}
-
-app.post('/cadastro', async(req, res) => {
+/* app.post('/cadastro', async(req, res) => {
     const { name, email, password } = req.body;
 
     if(!name || !email || !password) return res.sendStatus(422);
@@ -138,11 +127,12 @@ app.get('/home', async(req, res) => {
 
     try {
         const allTransactions = await db.collection('transactions').find().toArray();
+
         res.send(allTransactions);
     } catch (error) {
         return res.sendStatus(500);
     }
-})
+}) */
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
