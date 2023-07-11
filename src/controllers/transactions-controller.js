@@ -1,11 +1,13 @@
 import db from '../database/server.connect.js';
-import { transactionSchema } from '../schemas/schemas.js';
+import dayjs from 'dayjs';
 
 export async function newTransaction(req, res) {
     const { value, description } = req.body;
     const { tipo } = req.params;
     const { authorization } = req.headers;
     
+    const date = dayjs().format("DD/MM");
+
     const token = authorization?.replace("Bearer ", "");
     
     if(!token) return res.sendStatus(401);
@@ -17,9 +19,7 @@ export async function newTransaction(req, res) {
 
         if(!session) return res.sendStatus(401);
 
-        await db.collection('transactions').insertOne({ value, description, tipo });
-
-        console.log()
+        await db.collection('transactions').insertOne({ value, description, tipo, date });
 
         res.sendStatus(201);
     } catch (error) {
