@@ -1,5 +1,6 @@
 import db from '../database/server.connect.js';
 import dayjs from 'dayjs';
+import { ObjectId } from 'mongodb';
 
 export async function newTransaction(req, res) {
     const { value, description } = req.body;
@@ -42,3 +43,21 @@ export async function getTransactions(req, res) {
         return res.sendStatus(500);
     }
 }
+
+export async function deleteTransaction(req, res) {
+    const id = req.params.id;
+    const token = req.headers.authorization?.replace("Bearer ", "");
+
+    if(!token || !id) return res.sendStatus(401);
+
+    try {
+        const findTransaction = await db.collection('transactions').findOne({ _id: ObjectId(id) });
+        if (!findTransaction) return res.sendStatus(401);
+
+        await db.collection('transactions').deleteOne({ _id: ObjectId(id) });
+
+        res.sendStatus(204);
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+}    
