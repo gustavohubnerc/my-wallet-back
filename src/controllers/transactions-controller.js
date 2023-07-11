@@ -4,6 +4,11 @@ import { transactionSchema } from '../schemas/schemas.js';
 export async function newTransaction(req, res) {
     const { value, description } = req.body;
     const { tipo } = req.params;
+    const { authorization } = req.headers;
+    
+    const token = authorization?.replace("Bearer ", "");
+    
+    if(!token) return res.sendStatus(401);
 
     if(tipo !== 'entrada' && tipo !== 'saida') return res.sendStatus(404);
 
@@ -23,6 +28,12 @@ export async function newTransaction(req, res) {
 }
 
 export async function getTransactions(req, res) {
+    const { authorization } = req.headers;
+
+    const token = authorization?.replace("Bearer ", "");
+
+    if(!token) return res.sendStatus(401);
+    
     try {
         const allTransactions = await db.collection('transactions').find().toArray();
 

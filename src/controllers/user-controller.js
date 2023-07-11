@@ -8,6 +8,10 @@ export async function signUp(req, res) {
     if(!name || !email || !password) return res.sendStatus(422);
 
     try {
+        const user = await db.collection('users').findOne({ email });
+
+        if(user) return res.sendStatus(409);
+
         const hash = bcrypt.hashSync(password, 10);
 
         const userData = { name, email, password: hash};
@@ -16,6 +20,7 @@ export async function signUp(req, res) {
 
         res.sendStatus(201);
     } catch (error) {
+        console.log(error);
         return res.sendStatus(500);
     }
 }    
@@ -26,6 +31,9 @@ export async function signIn(req, res) {
     if(!email || !password) return res.sendStatus(422);
 
     try {
+        const user = await db.collection('users').findOne({ email });
+        if(!user) return res.sendStatus(404);
+        
         if(user && bcrypt.compareSync(password, user.password)) {
             const token = uuid();
 
