@@ -1,4 +1,4 @@
-# my-wallet-back
+# My Wallet - API
 This is the API of a financial management app, which allows the user to have a complete report of their expenses. Front-end: https://github.com/gustavohubnerc/my-wallet-front
 
 ## Routes
